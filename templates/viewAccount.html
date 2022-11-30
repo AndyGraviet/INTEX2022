@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content%}
+{% for i in currUser %}
+<div>
+    <h1 class='is-size-2 has-text-left'>Account Information</h1>
+    <article class="message is-link">
+        <div class="message-header">
+          {{i.full_name}}
+          <button aria-label="delete">EDIT</button>
+        </div>
+        <div class="message-body has-text-left">
+            <ul>
+                <li class="is-size-4"><strong>SEX: </strong>{{i.sex}}</li>
+                <li class="is-size-4"><strong>HEIGHT: </strong>{{i.height}}</li>
+                <li class="is-size-4"><strong>WEIGHT: </strong>{{i.weight}}</li>
+                <li class="is-size-4"><strong>AGE: </strong>{{i.age}}</li>
+                <li class="is-size-4"><strong>EMAIL: </strong>{{i.email}}</li>
+                <li class="is-size-4"><strong>COMORBIDITY: </strong>{{i.comorbidity}}</li>
+            </ul>
+        </div>
+      </article>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+
+first_name = models.CharField(max_length=30)
+last_name = models.CharField(max_length=30)
+sex = models.CharField(max_length=6, choices=SEX)
+height = models.IntegerField()
+age = models.IntegerField()
+weight = models.FloatField()
+email = models.EmailField()
+comorbidity = models.ForeignKey(recommendation, on_delete=models.DO_NOTHING)

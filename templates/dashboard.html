@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block main_title %}    {% endblock %}
+{% block sub_title %}{% endblock %}
+{% block content%}
+<div class="columns">
+    <div class="column is-one-third">
+        <canvas id="myChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+        //labels: ['Overall Yay', 'Overall Nay', 'Group A Yay', 'Group A Nay', 'Group B Yay', 'Group B Nay', 'Group C Yay', 'Group C Nay'],
+        datasets: [
+            {
+            backgroundColor: ['#485EC6', '#354594'],
+            label: 'Sodium',
+            data: [21, 79]
+            },
+            {
+            backgroundColor: ['#03D1B2', '#03D1B2'],
+            label: 'Protein',
+            data: [33, 67]
+            },
+            {
+            backgroundColor: ['#CFCFCF', '#363636'],
+            label: 'Water',
+            data: [20, 80]
+
+            },
+            {
+            backgroundColor: ['#49C674', '#379457'],
+            label: 'Potassium',
+            data: [10, 90]
+            },
+            {
+            backgroundColor: ['#FEDD57', '#CCB145'],
+            label: 'Phosphates',
+            data: [10, 90]
+            }
+        ]
+        },
+        });
+    </script>
+    <div class="column is-two-thirds">
+        <article class="message is-success">
+            <div class="message-header">
+              <p>{% for i in currUser %}{{i.first_name}}{%endfor%}'s Breakdown</p>
+              <button class="delete" aria-label="delete"></button>
+            </div>
+            <div class="message-body">
+                <h1 class="has-text-left">It looks like you are almost done with your goals! You need more of the following:</h1>
+            </br>
+                <ul class="has-text-left">
+                    <li><strong>Sodium</strong></li>
+                    <li><strong>Protein</strong></li>
+                    <li><strong>Water</strong></li>
+                    <li><strong>Potassium</strong></li>
+                    <li><strong>Phosphates</strong></li>
+                </ul>
+            </div>
+          </article>
+      <a class="button is-link">Add a Meal</a>
+    </div>
+  </div>
+<h1 class='is-size-2 has-text-left'>Micronutrition Progress</h1>
+<article class="message">
+    <div class="message-body has-text-left">
+        <p class='is-size-4'>Sodium</p>
+        <progress class="progress" value="15" max="100">15%</progress>
+        <p class='is-size-4'>Protein</p>
+        <progress class="progress is-primary" value="15" max="100">15%</progress>
+        <p class='is-size-4'>Water</p>
+        <progress class="progress is-link" value="30" max="100">30%</progress>
+        <p class='is-size-4'>Potassium</p>
+        <progress class="progress is-success" value="60" max="100">60%</progress>
+        <p class='is-size-4'>Phosphates</p>
+        <progress class="progress is-warning" value="75" max="100">75%</progress>
+    </div>
+</article>
+
+{% endblock %}
