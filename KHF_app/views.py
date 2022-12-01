@@ -101,31 +101,29 @@ def storeUserPageView(request):
     return render(request, 'dashboard.html', context)
 
 
-# SEARCH FUNCTIONALITY
-def searchView(request):
+def storeMealView(request):
     if request.method == 'POST':
-        parameter = request.POST.get('foodItem')
-        searchResult = getFoodList(parameter)
+
+        new_meal = meal()
+
+        new_meal.date = request.POST.get('date')
+
+        new_meal.notes = request.POST.get('notes')
+
+        new_meal.meal_type = request.POST.get('mealType')
+
+        userid = user.objects.get(email = request.user.email)
+
+        new_user = user.objects.get(id = userid.id)
+
+        new_meal.user = new_user
+
+        new_meal.save()
+
+    data = meal.objects.all()
 
     context = {
-        'search' : searchResult
+        'meals' : data,
     }
 
-    return context
-
-def getFoodList(foodSelection) :
-    r = requests.get('https://api.nal.usda.gov/fdc/v1/foods/search?query=' + foodSelection + '&dataType=&pageSize=6&sortBy=dataType.keyword&sortOrder=asc&api_key=qYgvm24Uuid52ZmJ6cM3wfhgbeWH33cYhssaUW5O')
-    y = json.loads(r.text)
-
-    brand = []
-    for x in y['foods'] :
-        
-        des = x['description']
-        ss = x['servingSize']
-        unit = x['servingSizeUnit']
-        bra = x['brandName']
-
-        brand.append([des, bra, ss, unit])
-    
-    return brand
-#END OF SEARCH FUNCTIONALITY
+    return render(request, 'dashboard.html', context)

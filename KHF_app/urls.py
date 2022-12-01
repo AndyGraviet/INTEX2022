@@ -8,5 +8,6 @@ urlpatterns = [
     path('fillAccount/', views.fillAccount, name='fillAccount'),
     path('logout/', views.logout, name='logout'),
     path('users', views.storeUserPageView, name='storeuser'),
+    path('storeMealView', views.storeMealView, name='storemealView'),
 ]
 

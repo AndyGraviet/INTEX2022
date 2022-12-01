@@ -71,16 +71,21 @@
             
         }
 
-        function addtolist(data){
-            arrayOfFoods.push(document.getElementById(data).value);
-            console.log(arrayOfFoods);
+        function buildTable2(data){
             var table = document.getElementById('foodlist');
             var row = 
             `<tr>
-                <td>${document.getElementById(data).value}</td>
-                <td class="has-text-right"><a class="button is-link" onclick=removefromlist()>Remove</a></td>
+                <td>${data.description}<br/><p class='is-size-7 has-text-grey'>${data.brandName}</p></td>
             </tr>`
-                table.innerHTML += row
+            table.innerHTML += row
+        }
+
+        function addtolist(data){
+            currElement = document.getElementById(data).value;
+            arrayOfFoods.push(currElement);
+            fetch(`https://api.nal.usda.gov/fdc/v1/food/${currElement}?nutrients=203&nutrients=204&nutrients=205&api_key=qYgvm24Uuid52ZmJ6cM3wfhgbeWH33cYhssaUW5O`)
+            .then(response => response.json())
+            .then(data => buildTable2(data))
         }
 
         function buildTable(data){
@@ -93,7 +98,7 @@
                 
                 var row = 
                 `<tr>
-                    <td>${data[i].lowercaseDescription}</td>
+                    <td>${data[i].lowercaseDescription}<p class='is-size-7 has-text-grey'>${data[i].brandName}</p></td>
                     <td class="has-text-right"><a class="button is-link" onclick=addtolist(${i})>Add</a></td>
                     <td><input type='hidden' id='${i}' value=${currValue}></td>
                 </tr>`
@@ -169,7 +174,7 @@
             <!-- MEAL INPUT FORM -->
             <div class="message-body">
                 <h1 class="has-text-left">Track what you ate below:</h1><br/>
-                <form name='form' method='post' action="{% url 'storeuser' %}">
+                <form name='form' method='post' action="{% url 'storemealView' %}">
                     {% csrf_token %}
                     <div class="columns">
                         <div class="field column is-one-half">
@@ -178,10 +183,10 @@
                                 <div class="select">
                                     <select name='mealType' required>
                                         <option value="breakfast">Breakfast</option>
-                                        <option value="breakfast">Lunch</option>
-                                        <option value="breakfast">Dinner</option>
-                                        <option value="breakfast">Snack</option>
-                                        <option value="breakfast">Water</option>
+                                        <option value="dinner">Dinner</option>
+                                        <option value="lunch">Lunch</option>
+                                        <option value="snack">Snack</option>
+                                        <option value="water">Water</option>
                                     </select>
                                 </div>
                             </div>
@@ -202,12 +207,11 @@
                         </div>
                     </div>
 
-                    <!-- SEARCH BAR FORM -->
                     <div class="field">
                             <label for='foodItems'  class="label">Search Food:</label>
                             <div class="control columns">
                                 <div class="column is-three-fifths">
-                                    <input type='text' name='foodItem' id='foodItem' required class='input' >
+                                    <input type='text' name='foodItem' id='foodItem' class='input' >
                                 </div>
                                 <div class="column is-one-fifth">
                                     <a class="button is-link" onclick=getFoods()>Find Food Item</a>
@@ -218,9 +222,6 @@
                     <table class="table has-text-left is-fullwidth" id="foodresults" ></table>
                     <h1 class="label">Added Foods</h1>
                     <table class="table has-text-left is-fullwidth" id="foodlist" ></table>
-
-
-                    <!-- END OF SEARCH FORM -->
 
                     <br>
                     <div class="field is-grouped">
@@ -239,6 +240,8 @@
     </div>
     <button class="modal-close is-large" aria-label="close" onclick=closeMealModalHandler()></button>
 </div>
+
+<!--END OF MEAL SUBMISSION MODAL-->
 
 <div class="modal" id="historymodal">
     <div class="modal-background"></div>

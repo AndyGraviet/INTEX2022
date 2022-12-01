@@ -38,12 +38,7 @@ class user(models.Model):
         return(f'{self.first_name} {self.last_name}')
     
 class meal(models.Model):
-    class meal_type_choice(models.IntegerChoices):
-        Breakfast = 1, 'Breakfast'
-        Lunch = 2, 'Lunch'
-        Dinner = 3, 'Dinner'
-        Snack = 4, 'Snack'
-        Water = 5, 'Water'
+
     MEALCHOICE = (
         ('Breakfast', 'Breakfast'),
         ('Lunch', 'Lunch'),
