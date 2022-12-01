@@ -3,6 +3,9 @@ from django.contrib.auth import logout as django_logout
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from .models import recommendation, user, food_item, food_item_in_meal, meal
+import requests
+import json
+import cgi
 
 # Create your views here.
 
@@ -32,8 +35,6 @@ def fillAccount(request):
             'user': request.user,
         }
         return render(request, 'account.html', context)
-
-    
 
 @login_required
 def viewAccount(request):
@@ -99,3 +100,32 @@ def storeUserPageView(request):
 
     return render(request, 'dashboard.html', context)
 
+
+# SEARCH FUNCTIONALITY
+def searchView(request):
+    if request.method == 'POST':
+        parameter = request.POST.get('foodItem')
+        searchResult = getFoodList(parameter)
+
+    context = {
+        'search' : searchResult
+    }
+
+    return context
+
+def getFoodList(foodSelection) :
+    r = requests.get('https://api.nal.usda.gov/fdc/v1/foods/search?query=' + foodSelection + '&dataType=&pageSize=6&sortBy=dataType.keyword&sortOrder=asc&api_key=qYgvm24Uuid52ZmJ6cM3wfhgbeWH33cYhssaUW5O')
+    y = json.loads(r.text)
+
+    brand = []
+    for x in y['foods'] :
+        
+        des = x['description']
+        ss = x['servingSize']
+        unit = x['servingSizeUnit']
+        bra = x['brandName']
+
+        brand.append([des, bra, ss, unit])
+    
+    return brand
+#END OF SEARCH FUNCTIONALITY

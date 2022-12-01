@@ -25,12 +25,3 @@
 
 {% endblock %}
 
-
-first_name = models.CharField(max_length=30)
-last_name = models.CharField(max_length=30)
-sex = models.CharField(max_length=6, choices=SEX)
-height = models.IntegerField()
-age = models.IntegerField()
-weight = models.FloatField()
-email = models.EmailField()
-comorbidity = models.ForeignKey(recommendation, on_delete=models.DO_NOTHING)

@@ -4,16 +4,19 @@
 {% block sub_title %}{% endblock %}
 {% block content%}
 <div class="columns">
+   
     <div class="column is-one-third">
         <canvas id="myChart"></canvas>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        //global list of the foods added to meal
+        let arrayOfFoods = [];
+
         const ctx = document.getElementById('myChart');
         new Chart(ctx, {
             type: 'pie',
             data: {
-        //labels: ['Overall Yay', 'Overall Nay', 'Group A Yay', 'Group A Nay', 'Group B Yay', 'Group B Nay', 'Group C Yay', 'Group C Nay'],
         datasets: [
             {
             backgroundColor: ['#485EC6', '#354594'],
@@ -44,12 +47,73 @@
         ]
         },
         });
+
+        function openMealModalHandler(){
+            arrayOfFoods = [];
+            document.getElementById('foodresults').innerHTML = "";
+            document.getElementById('foodlist').innerHTML = "";
+            document.getElementById('mealmodal').classList.add('is-active');
+        }
+
+        function closeMealModalHandler(){
+            document.getElementById('mealmodal').classList.remove('is-active');
+        }
+
+        function openHistoryModalHandler(){
+            document.getElementById('historymodal').classList.add('is-active');
+        }
+
+        function closeHistoryModalHandler(){
+            document.getElementById('historymodal').classList.remove('is-active');
+        }
+
+        function removefromlist(){
+            
+        }
+
+        function addtolist(data){
+            arrayOfFoods.push(document.getElementById(data).value);
+            console.log(arrayOfFoods);
+            var table = document.getElementById('foodlist');
+            var row = 
+            `<tr>
+                <td>${document.getElementById(data).value}</td>
+                <td class="has-text-right"><a class="button is-link" onclick=removefromlist()>Remove</a></td>
+            </tr>`
+                table.innerHTML += row
+        }
+
+        function buildTable(data){
+            var table = document.getElementById('foodresults');
+
+            table.innerHTML = ""
+            for (var i = 0; i < data.length; i++){
+                currValue = ""
+                currValue += data[i].fdcId
+                
+                var row = 
+                `<tr>
+                    <td>${data[i].lowercaseDescription}</td>
+                    <td class="has-text-right"><a class="button is-link" onclick=addtolist(${i})>Add</a></td>
+                    <td><input type='hidden' id='${i}' value=${currValue}></td>
+                </tr>`
+                table.innerHTML += row
+            }
+        }
+
+        function getFoods(){
+            item = document.getElementById('foodItem').value;
+            fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${item}&dataType=&pageSize=5&sortBy=dataType.keyword&sortOrder=asc&api_key=qYgvm24Uuid52ZmJ6cM3wfhgbeWH33cYhssaUW5O`)
+            .then(response => response.json())
+            .then(data => buildTable(data.foods))
+        }
+
     </script>
+
     <div class="column is-two-thirds">
         <article class="message is-success">
             <div class="message-header">
               <p>{% for i in currUser %}{{i.first_name}}{%endfor%}'s Breakdown</p>
-              <button class="delete" aria-label="delete"></button>
             </div>
             <div class="message-body">
                 <h1 class="has-text-left">It looks like you are almost done with your goals! You need more of the following:</h1>
@@ -63,23 +127,125 @@
                 </ul>
             </div>
           </article>
-      <a class="button is-link">Add a Meal</a>
+    <div class="has-text-right">
+        <a class="button is-link" onclick=openMealModalHandler()>Add a Meal</a>
+        <a class="button is-link" onclick=openHistoryModalHandler()>View Meal History</a>
+    </div>
+      
     </div>
   </div>
-<h1 class='is-size-2 has-text-left'>Micronutrition Progress</h1>
-<article class="message">
-    <div class="message-body has-text-left">
-        <p class='is-size-4'>Sodium</p>
-        <progress class="progress" value="15" max="100">15%</progress>
-        <p class='is-size-4'>Protein</p>
-        <progress class="progress is-primary" value="15" max="100">15%</progress>
-        <p class='is-size-4'>Water</p>
-        <progress class="progress is-link" value="30" max="100">30%</progress>
-        <p class='is-size-4'>Potassium</p>
-        <progress class="progress is-success" value="60" max="100">60%</progress>
-        <p class='is-size-4'>Phosphates</p>
-        <progress class="progress is-warning" value="75" max="100">75%</progress>
+<div class="columns">
+    <div class="column is-two-thirds">
+        <h1 class='is-size-2 has-text-left'>Micronutrition Progress</h1>
+        <article class="message">
+            <div class="message-body has-text-left">
+                <p class='is-size-4'>Sodium</p>
+                <progress class="progress" value="15" max="100">15%</progress>
+                <p class='is-size-4'>Protein</p>
+                <progress class="progress is-primary" value="15" max="100">15%</progress>
+                <p class='is-size-4'>Water</p>
+                <progress class="progress is-link" value="30" max="100">30%</progress>
+                <p class='is-size-4'>Potassium</p>
+                <progress class="progress is-success" value="60" max="100">60%</progress>
+                <p class='is-size-4'>Phosphates</p>
+                <progress class="progress is-warning" value="75" max="100">75%</progress>
+            </div>
+        </article>
     </div>
-</article>
+    <div class="column is-one-third">
+        <h1 class='is-size-2 has-text-right'>Today's Meals</h1>
+    </div>
+
+</div>
+
+<div class="modal has-text-left" id="mealmodal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <article class="message is-success">
+            <div class="message-header">
+              <p>My Meal</p>
+            </div>
+
+            <!-- MEAL INPUT FORM -->
+            <div class="message-body">
+                <h1 class="has-text-left">Track what you ate below:</h1><br/>
+                <form name='form' method='post' action="{% url 'storeuser' %}">
+                    {% csrf_token %}
+                    <div class="columns">
+                        <div class="field column is-one-half">
+                            <label for='mealType'  class="label">Meal Type:</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select name='mealType' required>
+                                        <option value="breakfast">Breakfast</option>
+                                        <option value="breakfast">Lunch</option>
+                                        <option value="breakfast">Dinner</option>
+                                        <option value="breakfast">Snack</option>
+                                        <option value="breakfast">Water</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="field column is-one-half">
+                            <label for='date'  class="label">Date:</label>
+                            <div class="control">
+                                <input class='input' type='date' name='date' id='date' required onload=getDate()>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="field">
+                        <label for='notes'  class="label">Notes:</label>
+                        <div class="control">
+                            <input type='text' name='notes' id='notes' required class='input'>
+                        </div>
+                    </div>
+
+                    <!-- SEARCH BAR FORM -->
+                    <div class="field">
+                            <label for='foodItems'  class="label">Search Food:</label>
+                            <div class="control columns">
+                                <div class="column is-three-fifths">
+                                    <input type='text' name='foodItem' id='foodItem' required class='input' >
+                                </div>
+                                <div class="column is-one-fifth">
+                                    <a class="button is-link" onclick=getFoods()>Find Food Item</a>
+                                </div>
+                            </div>
+                    </div>
+
+                    <table class="table has-text-left is-fullwidth" id="foodresults" ></table>
+                    <h1 class="label">Added Foods</h1>
+                    <table class="table has-text-left is-fullwidth" id="foodlist" ></table>
+
+
+                    <!-- END OF SEARCH FORM -->
+
+                    <br>
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <button type='submit' class="button is-link">Submit</button>
+                        </div>
+                        <div class="control">
+                            <a class="button is-link is-light" onclick=closeMealModalHandler()>Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </br>
+
+            </div>
+          </article>
+    </div>
+    <button class="modal-close is-large" aria-label="close" onclick=closeMealModalHandler()></button>
+</div>
+
+<div class="modal" id="historymodal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+      history modal
+    </div>
+    <button class="modal-close is-large" aria-label="close" onclick=closeHistoryModalHandler()></button>
+</div>
 
 {% endblock %}
